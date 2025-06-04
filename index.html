@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<head>
+  <title>Управление LED</title>
+  <style>
+    button { font-size: 2em; margin: 10px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <h1>Управление светодиодом</h1>
+  <button onclick="sendCommand(1)">Включить</button>
+  <button onclick="sendCommand(0)">Выключить</button>
+
+  <script>
+    function sendCommand(value) {
+      fetch("https://e469-178-26-57-164.ngrok-free.app", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "state=" + value
+      });
+    }
+  </script>
+</body>
+</html>
