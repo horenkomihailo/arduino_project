@@ -16,7 +16,7 @@ app = Flask(__name__)
 # Главная страница
 @app.route("/", methods=["GET"])
 def index():
-    return render_template("lamp_token.html", token=SECRET_TOKEN)
+    return render_template("lamp.html", token=SECRET_TOKEN)
 
 # POST-запрос на управление светодиодом
 @app.route("/set", methods=["POST"])
