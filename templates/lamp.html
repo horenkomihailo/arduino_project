@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Управление Светодиодом</title>
+  <title>LED Control (Token)</title>
 </head>
 <body>
   <h1>💡 Светодиод</h1>
   <form action="/set" method="post">
+    <input type="hidden" name="token" value="{{ token }}">
     <button name="state" value="1">Включить</button>
     <button name="state" value="0">Выключить</button>
   </form>
