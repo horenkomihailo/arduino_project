@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Влажность почвы</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+    button { font-size: 1.2em; padding: 10px 20px; }
+    #moisture { font-size: 2em; margin-top: 20px; }
+    canvas { max-width: 400px; margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <h1>Мониторинг влажности почвы</h1>
+  <button onclick="checkMoisture()">Проверить влажность</button>
+  <button onclick="clearHistory()">🗑️ Очистить историю</button>
+  <div id="moisture">Влажность: --%</div>
+  <canvas id="chart" width="400" height="200"></canvas>
+
+  <script>
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Влажность (%)',
+          data: [],
+          borderColor: 'green',
+          borderWidth: 2,
+          tension: 0.3
+        }]
+      },
+      options: {
+        scales: { y: { min: 0, max: 100 } }
+      }
+    });
+
+    function checkMoisture() {
+      fetch("http://localhost:5000/moisture")
+        .then(res => res.json())
+        .then(data => {
+          if (data.percent !== undefined) {
+            document.getElementById('moisture').textContent = `Влажность: ${data.percent}%`;
+            const time = new Date().toLocaleTimeString();
+            chart.data.labels.push(time);
+            chart.data.datasets[0].data.push(data.percent);
+            if (chart.data.labels.length > 10) {
+              chart.data.labels.shift();
+              chart.data.datasets[0].data.shift();
+            }
+            chart.update();
+          }
+        })
+        .catch(() => alert("Ошибка запроса к серверу"));
+    }
+
+    window.onload = function() {
+      fetch("http://localhost:5000/history")
+        .then(res => res.json())
+        .then(data => {
+          data.forEach(entry => {
+            chart.data.labels.push(entry.time);
+            chart.data.datasets[0].data.push(entry.percent);
+          });
+          chart.update();
+        });
+    };
+
+    function clearHistory() {
+      fetch("http://localhost:5000/clear", { method: "POST" })
+        .then(() => {
+          chart.data.labels = [];
+          chart.data.datasets[0].data = [];
+          chart.update();
+          alert("История очищена");
+        });
+    }
+
+  </script>
+</body>
+</html>
